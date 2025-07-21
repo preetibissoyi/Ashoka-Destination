@@ -10,7 +10,7 @@ const oneWayPrices = [
     { vehicle: 'Tavera 9 sitter', amount: '1800/-' },
     { vehicle: 'Winger 13/15 sitter', amount: '2800/-' },
   ]},
-  { from: 'Bhubaneswar', to: 'Berhapur (One Side Pick-up & Drop)', prices: [
+  { from: 'Bhubaneswar', to: 'Berhampur (One Side Pick-up & Drop)', prices: [
     { vehicle: 'Swift Dzire 4 sitter', amount: '2200/-' },
     { vehicle: 'Ertiga 7 sitter', amount: '3500/-' },
     { vehicle: 'Innova 7 sitter', amount: '4000/-' },
