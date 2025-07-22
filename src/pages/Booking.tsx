@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -16,8 +16,25 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { Phone as PhoneIcon, QrCode as QrCodeIcon } from '@mui/icons-material';
 import emailjs from '@emailjs/browser';
+import { useParams } from 'react-router-dom';
 
-const vehicles = [
+interface Vehicle {
+  value: string;
+  label: string;
+}
+
+interface FormData {
+  fullName: string;
+  contactNumber: string;
+  email: string;
+  vehicle: string;
+  pickupDate: Date | null;
+  dropoffDate: Date | null;
+  pickupLocation: string;
+  dropoffLocation: string;
+}
+
+const vehicles: Vehicle[] = [
   { value: 'suv', label: 'SUV' },
   { value: 'tempo-traveller', label: 'Tempo Traveller' },
   { value: 'traveller', label: 'Traveller' },
@@ -27,16 +44,28 @@ const vehicles = [
 ];
 
 const Booking = () => {
-  const [formData, setFormData] = useState({
+  const { vehicle } = useParams();
+  
+  const [formData, setFormData] = useState<FormData>({
     fullName: '',
     contactNumber: '',
     email: '',
     vehicle: '',
-    pickupDate: null as Date | null,
-    dropoffDate: null as Date | null,
+    pickupDate: null,
+    dropoffDate: null,
     pickupLocation: '',
     dropoffLocation: ''
   });
+
+  // Pre-fill vehicle if provided in URL
+  useEffect(() => {
+    if (vehicle) {
+      setFormData(prev => ({
+        ...prev,
+        vehicle: vehicle
+      }));
+    }
+  }, [vehicle]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -222,107 +251,169 @@ const Booking = () => {
               </Button>
             </Box>
 
-            <Box sx={{ mt: 4, mb: 3 }}>
-              <Divider>
-                <Typography variant="h6" color="primary" sx={{ px: 2 }}>
-                  For Advance Payment
-                </Typography>
-              </Divider>
-            </Box>
-
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 3,
-                justifyContent: 'center',
-                alignItems: 'center',
-                mb: 4
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                overflowX: 'auto',
+                gap: 4,
+                width: '100%',
+                py: 2,
+                mb: 4,
               }}
             >
-              <Card 
-                elevation={3}
-                sx={{ 
-                  maxWidth: 300,
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  mb: 2
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image="/asset/qrcode.webp"
-                  alt="QR Code for Payment"
-                  sx={{
-                    width: '100%',
-                    height: 'auto',
-                    objectFit: 'contain'
-                  }}
-                />
-              </Card>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                startIcon={<QrCodeIcon />}
+              {/* For Advance Payment Section */}
+              <Box
                 sx={{
-                  minWidth: { xs: '100%', sm: 200 },
-                  py: 1.5
+                  minWidth: 350,
+                  maxWidth: 400,
+                  flex: '0 0 auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  background: '#fafafa',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  p: 2,
                 }}
               >
-                Scan & Pay
-              </Button>
-            </Box>
+                <Divider sx={{ width: '100%', mb: 2 }}>
+                  <Typography variant="h6" color="primary" sx={{ px: 2 }}>
+                    For Advance Payment
+                  </Typography>
+                </Divider>
+                <Card
+                  elevation={3}
+                  sx={{
+                    maxWidth: 300,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    mb: 2,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image="/asset/qrcode.webp"
+                    alt="QR Code for Payment"
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </Card>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  startIcon={<QrCodeIcon />}
+                  sx={{
+                    minWidth: 200,
+                    py: 1.5,
+                  }}
+                >
+                  Scan & Pay
+                </Button>
+              </Box>
 
-            <Box sx={{ mt: 4, mb: 3 }}>
-              <Divider>
-                <Typography variant="h6" color="primary" sx={{ px: 2 }}>
-                  Reservation Booking
+              {/* Reservation Booking Section */}
+              <Box
+                sx={{
+                  minWidth: 350,
+                  maxWidth: 400,
+                  flex: '0 0 auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  background: '#fafafa',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  p: 2,
+                }}
+              >
+                <Divider sx={{ width: '100%', mb: 2 }}>
+                  <Typography variant="h6" color="primary" sx={{ px: 2 }}>
+                    Reservation Booking
+                  </Typography>
+                </Divider>
+                <Card
+                  elevation={3}
+                  sx={{
+                    maxWidth: 300,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    mb: 2,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image="/asset/booking.webp"
+                    alt="Booking Information"
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </Card>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  startIcon={<PhoneIcon />}
+                  sx={{
+                    minWidth: 200,
+                    py: 1.5,
+                  }}
+                >
+                  Call for Reservation
+                </Button>
+              </Box>
+
+              {/* Feedback / Google Review Section */}
+              <Box
+                sx={{
+                  minWidth: 350,
+                  maxWidth: 400,
+                  flex: '0 0 auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  background: '#fafafa',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  p: 2,
+                }}
+              >
+                <Divider sx={{ width: '100%', mb: 2 }}>
+                  <Typography variant="h6" color="primary" sx={{ px: 2 }}>
+                    Feedback / Google Review
+                  </Typography>
+                </Divider>
+                <Card
+                  elevation={3}
+                  sx={{
+                    maxWidth: 300,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    mb: 2,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    image="/asset/feedbackQR-jaijagganath.jpeg"
+                    alt="Google Review QR Code"
+                    sx={{
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </Card>
+                <Typography variant="body1" align="center" sx={{ mb: 1, fontWeight: 500 }}>
+                  Scan this QR code to leave us a review on Google
                 </Typography>
-              </Divider>
-            </Box>
-
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 3,
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <Card 
-                elevation={3}
-                sx={{ 
-                  maxWidth: 300,
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  mb: 2
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image="/asset/booking.webp"
-                  alt="Booking Information"
-                  sx={{
-                    width: '100%',
-                    height: 'auto',
-                    objectFit: 'contain'
-                  }}
-                />
-              </Card>
-              <Button
-                variant="contained"
-                color="secondary"
-                size="large"
-                startIcon={<PhoneIcon />}
-                sx={{
-                  minWidth: { xs: '100%', sm: 200 },
-                  py: 1.5
-                }}
-              >
-                Call for Reservation
-              </Button>
+              </Box>
             </Box>
           </form>
         </Paper>

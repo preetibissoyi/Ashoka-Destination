@@ -1,5 +1,18 @@
-import { Box, Container, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Card, CardContent, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
+import { Box, Container, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Card, CardContent, List, ListItem, ListItemText, ListItemIcon, Button } from '@mui/material';
 import { CheckCircleOutline } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
+// Vehicle mapping from pricing names to booking form values
+const vehicleMapping: Record<string, string> = {
+  'Swift Dzire 4 sitter': 'suv',
+  'Swift Dzire Saden': 'suv',
+  'Ertiga 7 sitter': 'suv',
+  'Innova 7 sitter': 'innova',
+  'Crysta 7 sitter': 'innova-crysta',
+  'Tavera 9 sitter': 'tempo-traveller',
+  'Winger 13/15 sitter': 'winger',
+  'Traveller 14 sitter': 'traveller'
+};
 
 const oneWayPrices = [
   { from: 'Bhubaneswar Railway Station & Airport', to: 'Puri (One Side Pick-up & Drop)', prices: [
@@ -86,45 +99,210 @@ const extraCharges = [
     { place: 'Night 10pm to 5am Trip', price: '200/-' },
 ];
 
-const PricingCard = ({ title, data }:{title:any,data:any}) => (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-8px)', boxShadow: 6 } }}>
-        <CardContent sx={{ flexGrow: 1 }}>
-            <Typography variant="h5" component="h3" sx={{ p: 2, bgcolor: 'primary.main', color: 'white', textAlign: 'center', borderRadius: '4px 4px 0 0' }}>
+interface PricingItem {
+  vehicle: string;
+  amount?: string;
+  dayFare?: string;
+  perKm?: string;
+  hrs?: string;
+  km?: string;
+  dayCharge?: string;
+}
+
+interface PricingCardProps {
+  title: string;
+  data: PricingItem[];
+}
+
+const PricingCard = ({ title, data }: PricingCardProps) => {
+    const navigate = useNavigate();
+    const handleBookNow = (vehicle: string) => {
+        const bookingFormPath = `/booking/${vehicleMapping[vehicle]}`;
+        navigate(bookingFormPath);
+    };
+
+    return (
+        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-8px)', boxShadow: 6 } }}>
+            <CardContent sx={{ flexGrow: 1, p: 0 }}>
+                <Typography variant="h5" component="h3" sx={{ p: 2, bgcolor: 'primary.main', color: 'white', textAlign: 'center', borderRadius: '4px 4px 0 0' }}>
+                    {title}
+                </Typography>
+                <List sx={{ p: 2 }}>
+                    {data.map((item: PricingItem, index: number) => (
+                        <ListItem key={index} sx={{ 
+                            flexDirection: 'column', 
+                            alignItems: 'stretch', 
+                            p: 2, 
+                            mb: 1, 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: 2,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                borderColor: 'primary.main',
+                                backgroundColor: '#f8f9fa',
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                            }
+                        }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                    <CheckCircleOutline color="primary" />
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={
+                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                                            {item.vehicle}
+                                        </Typography>
+                                    } 
+                                    secondary={
+                                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.main', mt: 0.5 }}>
+                                            {item.amount || item.dayFare || item.perKm}
+                                        </Typography>
+                                    } 
+                                />
+                            </Box>
+                            {item.hrs && (
+                                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1, ml: 6 }}>
+                                    Duration: {item.hrs}, Fuel: {item.km}km/l
+                                </Typography>
+                            )}
+                            {item.dayCharge && (
+                                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1, ml: 6 }}>
+                                    Day Charge: {item.dayCharge}
+                                </Typography>
+                            )}
+                            <Button 
+                                variant="contained" 
+                                color="primary" 
+                                onClick={() => handleBookNow(item.vehicle)}
+                                sx={{ 
+                                    mt: 1,
+                                    width: '100%',
+                                    py: 1.5,
+                                    fontSize: '1rem',
+                                    fontWeight: 600,
+                                    borderRadius: 2,
+                                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                                    boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        background: 'linear-gradient(45deg, #1976D2 30%, #1E88E5 90%)',
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .4)'
+                                    }
+                                }}
+                            >
+                                Book Now
+                            </Button>
+                        </ListItem>
+                    ))}
+                </List>
+            </CardContent>
+        </Card>
+    );
+};
+
+interface PricingTableProps {
+  title: string;
+  headers: string[];
+  data: Record<string, string>[];
+  dataKeys: string[];
+}
+
+const PricingTable = ({ title, headers, data, dataKeys }: PricingTableProps) => {
+    const navigate = useNavigate();
+    const handleBookNow = (vehicle: string) => {
+        const bookingFormPath = `/booking/${vehicleMapping[vehicle]}`;
+        navigate(bookingFormPath);
+    };
+
+    return (
+        <TableContainer component={Paper} sx={{ mb: 4, boxShadow: 3, borderRadius: 2, overflow: 'hidden' }}>
+            <Typography variant="h6" component="h4" sx={{ p: 2, bgcolor: 'secondary.main', color: 'white', textAlign: 'center', fontWeight: 600 }}>
                 {title}
             </Typography>
-            <List>
-                {data.map((item:any, index:any) => (
-                    <ListItem key={index}>
-                        <ListItemIcon><CheckCircleOutline color="primary" /></ListItemIcon>
-                        <ListItemText primary={`${item.vehicle}: ${item.amount || item.dayFare || item.perKm}`} secondary={item.hrs ? `(${item.hrs}, ${item.km}km/l)` : item.dayCharge ? `Day Charge: ${item.dayCharge}`: ''} />
-                    </ListItem>
-                ))}
-            </List>
-        </CardContent>
-    </Card>
-);
-
-const PricingTable = ({ title, headers, data, dataKeys }:{title:any, headers:any, data:any, dataKeys:any}) => (
-    <TableContainer component={Paper} sx={{ mb: 4, boxShadow: 3, borderRadius: 2 }}>
-      <Typography variant="h6" component="h4" sx={{ p: 2, bgcolor: 'secondary.main', color: 'white' }}>
-        {title}
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {headers.map((header:any, index:any) => <TableCell key={index} sx={{ fontWeight: 'bold' }}>{header}</TableCell>)}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row:any, rowIndex:any) => (
-            <TableRow key={rowIndex} sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
-              {dataKeys.map((key:any, keyIndex:any) => <TableCell key={keyIndex}>{row[key]}</TableCell>)}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
+            <Table>
+                <TableHead>
+                    <TableRow sx={{ backgroundColor: 'primary.light' }}>
+                        {headers.map((header: string, index: number) => (
+                            <TableCell key={index} sx={{ 
+                                fontWeight: 'bold', 
+                                color: 'white',
+                                textAlign: 'center',
+                                fontSize: '1rem'
+                            }}>
+                                {header}
+                            </TableCell>
+                        ))}
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {data.map((row: Record<string, string>, rowIndex: number) => (
+                        <TableRow key={rowIndex} sx={{ 
+                            '&:nth-of-type(odd)': { backgroundColor: '#f8f9fa' },
+                            '&:hover': { 
+                                backgroundColor: '#e3f2fd',
+                                transform: 'scale(1.01)',
+                                transition: 'all 0.2s ease'
+                            }
+                        }}>
+                            {dataKeys.map((key: string, keyIndex: number) => (
+                                <TableCell key={keyIndex} sx={{ 
+                                    textAlign: 'center',
+                                    py: 2,
+                                    borderBottom: '1px solid #e0e0e0'
+                                }}>
+                                    {key === 'vehicle' ? (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                                            <Typography variant="body1" sx={{ 
+                                                fontWeight: 600, 
+                                                color: 'primary.main',
+                                                mb: 1
+                                            }}>
+                                                {row[key]}
+                                            </Typography>
+                                            <Button 
+                                                variant="contained" 
+                                                color="primary" 
+                                                onClick={() => handleBookNow(row[key])}
+                                                sx={{ 
+                                                    minWidth: 120,
+                                                    py: 1,
+                                                    px: 2,
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 600,
+                                                    borderRadius: 2,
+                                                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                                                    boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                                                    transition: 'all 0.3s ease',
+                                                    '&:hover': {
+                                                        background: 'linear-gradient(45deg, #1976D2 30%, #1E88E5 90%)',
+                                                        transform: 'translateY(-2px)',
+                                                        boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .4)'
+                                                    }
+                                                }}
+                                            >
+                                                Book Now
+                                            </Button>
+                                        </Box>
+                                    ) : (
+                                        <Typography variant="body1" sx={{ 
+                                            fontWeight: key === 'amount' || key === 'dayFare' || key === 'perKm' ? 700 : 500,
+                                            color: key === 'amount' || key === 'dayFare' || key === 'perKm' ? 'success.main' : 'text.primary',
+                                            fontSize: key === 'amount' || key === 'dayFare' || key === 'perKm' ? '1.1rem' : '1rem'
+                                        }}>
+                                            {row[key]}
+                                        </Typography>
+                                    )}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    );
+};
 
 const Pricing = () => {
   return (

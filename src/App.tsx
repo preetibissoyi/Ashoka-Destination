@@ -180,6 +180,7 @@ function App() {
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/booking" element={<Booking />} />
+              <Route path="/booking/:vehicle" element={<Booking />} />
               <Route path="/contact" element={<Contact />} />
             </Routes>
           </Box>
